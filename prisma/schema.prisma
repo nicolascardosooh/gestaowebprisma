@@ -1,0 +1,36 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id            String   @id @default(uuid())
+  name          String
+  databaseName  String   @unique // Nome do banco de dados específico da empresa
+  databaseHost  String   @default("localhost")
+  databasePort  Int      @default(5432)
+  databaseUser  String   @default("postgres")
+  databasePass  String   // Senha do banco de dados da empresa
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  users         User[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  role      String   @default("user")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
