@@ -1,6 +1,7 @@
-// prisma/schema.prisma
+// prisma/schema.prisma - Banco de dados principal
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/main-client"
 }
 
 datasource db {
@@ -11,15 +12,18 @@ datasource db {
 model Company {
   id            String   @id @default(uuid())
   name          String
-  databaseName  String   @unique // Nome do banco de dados específico da empresa
+  databaseName  String   @unique
   databaseHost  String   @default("localhost")
   databasePort  Int      @default(5432)
   databaseUser  String   @default("postgres")
-  databasePass  String   // Senha do banco de dados da empresa
+  databasePass  String
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   users         User[]
+  
+  // Campo para armazenar o ID externo da empresa no banco de dados do cliente
+  externalId    String?  @unique
 }
 
 model User {
@@ -33,4 +37,7 @@ model User {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Campo para armazenar o ID externo do usuário no banco de dados do cliente
+  externalId String?  @unique
 }

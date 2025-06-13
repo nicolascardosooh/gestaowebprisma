@@ -1,10 +1,19 @@
 // src/app/api/auth/login/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { compare } from 'bcrypt';
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
+
+    // Validar dados
+    if (!email || !password) {
+      return NextResponse.json(
+        { message: 'Email e senha são obrigatórios' },
+        { status: 400 }
+      );
+    }
 
     // Buscar usuário pelo email
     const user = await prisma.user.findUnique({
@@ -12,10 +21,10 @@ export async function POST(request: Request) {
       include: { company: true },
     });
 
-    // Verificar se o usuário existe e a senha está correta
-    if (!user || user.password !== password) {
+    // Verificar se o usuário existe
+    if (!user) {
       return NextResponse.json(
-        { message: 'Email ou senha inválidos' },
+        { message: 'Credenciais inválidas' },
         { status: 401 }
       );
     }
@@ -36,10 +45,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // Em produção, use JWT para gerar um token seguro
-    const token = Buffer.from(`${user.id}:${user.email}`).toString('base64');
+    // Verificar a senha usando bcrypt
+    const passwordMatch = await compare(password, user.password);
 
-    // Retornar dados do usuário e token
+    if (!passwordMatch) {
+      return NextResponse.json(
+        { message: 'Credenciais inválidas' },
+        { status: 401 }
+      );
+    }
+
+    // Retornar dados do usuário (sem a senha)
     return NextResponse.json({
       id: user.id,
       name: user.name,
@@ -47,12 +63,11 @@ export async function POST(request: Request) {
       role: user.role,
       companyId: user.companyId,
       companyName: user.company.name,
-      token
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro no login:', error);
     return NextResponse.json(
-      { message: 'Erro interno do servidor' },
+      { message: `Erro: ${error.message}` },
       { status: 500 }
     );
   }

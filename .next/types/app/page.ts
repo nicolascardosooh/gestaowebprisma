@@ -1,4 +1,4 @@
-// File: C:\Users\alexa\Desktop\NICOLAS\projetos\projetos\GESTAO WEB\GestaoWebNova\gestao-web-erp\src\app\page.tsx
+// File: C:\Users\nico\Desktop\gestaoweb\gestaowebprisma\src\app\page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

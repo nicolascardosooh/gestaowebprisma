@@ -1,0 +1,93 @@
+// client-scheme.prisma - Banco de dados específico do cliente
+generator clientDb {
+  provider = "prisma-client-js"
+  output   = "./generated/client-client"
+}
+
+datasource clientDb {
+  provider = "postgresql"
+  url      = env("CLIENT_DATABASE_URL")
+}
+
+// Modelos específicos do banco de dados do cliente
+model ClientCompany {
+  id            String   @id @default(uuid())
+  name          String
+  // Campo para armazenar o ID da empresa no banco de dados principal
+  mainId        String   @unique
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relacionamentos
+  users         ClientUser[]
+  profiles      Profile[]
+  modules       Module[]
+}
+
+model ClientUser {
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  // Campo para armazenar o ID do usuário no banco de dados principal
+  mainId        String   @unique
+  companyId     String
+  company       ClientCompany  @relation(fields: [companyId], references: [id])
+  profileId     String?
+  profile       Profile?       @relation(fields: [profileId], references: [id])
+  role          String   @default("user")
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  companyId     String
+  company       ClientCompany  @relation(fields: [companyId], references: [id])
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relacionamentos
+  users         ClientUser[]
+  permissions   Permission[]
+}
+
+model Module {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  icon          String?
+  path          String?
+  order         Int      @default(0)
+  parentId      String?
+  parent        Module?  @relation("ModuleToSubmodule", fields: [parentId], references: [id])
+  submodules    Module[] @relation("ModuleToSubmodule")
+  companyId     String
+  company       ClientCompany  @relation(fields: [companyId], references: [id])
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relacionamentos
+  permissions   Permission[]
+}
+
+model Permission {
+  id            String   @id @default(uuid())
+  profileId     String
+  profile       Profile  @relation(fields: [profileId], references: [id])
+  moduleId      String
+  module        Module   @relation(fields: [moduleId], references: [id])
+  canView       Boolean  @default(false)
+  canCreate     Boolean  @default(false)
+  canEdit       Boolean  @default(false)
+  canDelete     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([profileId, moduleId])
+}

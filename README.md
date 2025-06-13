@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestão Web ERP
 
-## Getting Started
+Sistema de gestão empresarial completo com controle de permissões e menu dinâmico.
 
-First, run the development server:
+## Tecnologias
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 14
+- TypeScript
+- Prisma ORM
+- PostgreSQL
+- NextAuth.js
+- TailwindCSS
+- React Icons
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Funcionalidades
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Autenticação de usuários
+- Sistema multi-tenant (cada empresa tem seu próprio banco de dados)
+- Controle de permissões por perfil de usuário
+- Menu dinâmico baseado nas permissões do usuário
+- Módulos: RH, Cadastros, Fiscal, PDV
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Configuração Inicial
 
-## Learn More
+1. Clone o repositório
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Configure o arquivo `.env` com as informações do banco de dados:
+   ```
+   DATABASE_URL="postgresql://postgres:senha@localhost:5432/gestaoweb"
+   NEXTAUTH_SECRET="seu-segredo-super-seguro"
+   NEXTAUTH_URL="http://localhost:3005"
+   ```
+4. Execute as migrações do Prisma:
+   ```bash
+   npx prisma migrate dev
+   ```
+5. Popule o banco de dados com dados iniciais:
+   ```bash
+   npm run seed
+   ```
+6. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+7. Acesse http://localhost:3005
 
-To learn more about Next.js, take a look at the following resources:
+## Usuário Padrão
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Email: admin@exemplo.com
+- Senha: admin123
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estrutura do Projeto
 
-## Deploy on Vercel
+- `/prisma`: Configuração do Prisma ORM e migrações
+- `/src/app`: Páginas e rotas da aplicação
+- `/src/app/api`: APIs do backend
+- `/src/components`: Componentes reutilizáveis
+- `/src/lib`: Bibliotecas e utilitários
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Módulos e Permissões
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O sistema possui um controle de permissões baseado em perfis de usuário. Cada perfil pode ter diferentes permissões para cada menu do sistema:
+
+- **Visualizar**: Permite acessar a página
+- **Criar**: Permite criar novos registros
+- **Editar**: Permite editar registros existentes
+- **Excluir**: Permite excluir registros
+
+Os menus são organizados em módulos, como:
+
+- **Recursos Humanos**: Funcionários, Departamentos
+- **Cadastros**: Clientes, Fornecedores, Produtos
+- **Fiscal**: Notas Fiscais, Impostos
+- **PDV**: Vendas, Caixa
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT.

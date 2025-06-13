@@ -2,20 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import apiService from '@/lib/api';
-import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
-
-// Interface para o retorno da API de login
-interface LoginResponse {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  companyId: string;
-  companyName: string;
-  token: string;
-}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -30,17 +18,22 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      // Usando o serviço de API para fazer login com tipo definido
-      const data = await apiService.post<LoginResponse>('/auth/login', { email, password });
+      // Usando NextAuth para fazer login
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
       
-      // Salvar token no localStorage
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user_data', JSON.stringify(data));
+      if (result?.error) {
+        setError(result.error || 'Email ou senha inválidos');
+        return;
+      }
       
       // Redirecionar para o dashboard após login bem-sucedido
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao fazer login');
+      setError('Erro ao fazer login');
     } finally {
       setLoading(false);
     }

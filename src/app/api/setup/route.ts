@@ -1,12 +1,21 @@
 // src/app/api/setup/route.ts
 import { NextResponse } from 'next/server';
 import { createCompany, createUser } from '@/lib/db';
+import { hash } from 'bcrypt';
 
 export async function POST(request: Request) {
   try {
     const { companyName, databaseName, databasePass, userName, userEmail, userPassword } = await request.json();
 
-    // Criar empresa
+    // Validar dados
+    if (!companyName || !databaseName || !databasePass || !userName || !userEmail || !userPassword) {
+      return NextResponse.json(
+        { message: 'Todos os campos são obrigatórios' },
+        { status: 400 }
+      );
+    }
+
+    // Criar empresa (isso também criará o banco de dados e inicializará as tabelas)
     const company = await createCompany({
       name: companyName,
       databaseName,
@@ -14,10 +23,11 @@ export async function POST(request: Request) {
     });
 
     // Criar usuário administrador
+    const hashedPassword = await hash(userPassword, 10);
     const user = await createUser({
       name: userName,
       email: userEmail,
-      password: userPassword,
+      password: hashedPassword,
       companyId: company.id,
       role: 'admin',
     });
